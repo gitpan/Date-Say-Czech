@@ -1,6 +1,6 @@
 # Czech.pm
 #
-# (c) 2005 Jiri Vaclavik <jiri.vaclavik@gmail.com>
+# (c) 2005 Jiri Vaclavik <jiri.vaclavik@NOSPAMgmailNOSPAM.com>
 # All rights reserved. This program is free software; you can redistribute
 # and/or modify it under the same terms as perl itself.
 
@@ -10,10 +10,10 @@ Date::Say::Czech - Output dates as text as you would speak it
 
 =head1 SYNOPSIS
 
-use Date::Say::Czech;
+ use Date::Say::Czech;
 
-print time_to_say(time());
-print date_to_say($DAY, $MONTH, $YEAR);
+ print time_to_say(time());
+ print date_to_say($DAY, $MONTH, $YEAR);
 
 =head1 DESCRIPTION
 
@@ -70,13 +70,13 @@ Converts a day number to its Czech text representation.
 =head1 BUGS
 
 Please report all bugs to the author of this module:
-Jiri Vaclavik <jiri.vaclavik@gmail.com>
+Jiri Vaclavik <jiri.vaclavik@NOSPAMgmailNOSPAM.com>
 
-=for html <a href="mailto:jiri.vaclavik@gmail.com?subject=Bug%20in%20Date::Say::Czech">Mail a Bug</a>
+=for html <a href="mailto:jiri.vaclavik@NOSPAMgmailNOSPAM.com?subject=Bug%20in%20Date::Say::Czech">Mail a Bug</a>
 
 =head1 AUTHOR
 
-Jiri Vaclavik <jiri.vaclavik@gmail.com>
+Jiri Vaclavik <jiri.vaclavik@NOSPAMgmailNOSPAM.com>
 
 =head1 SEE ALSO
 
@@ -93,7 +93,7 @@ require POSIX;
 @ISA = qw(Exporter Date::Say::Czech);
 @EXPORT_OK = qw(date_to_say time_to_say);
 %EXPORT_TAGS = ( ALL => [qw(year_to_say date_to_say time_to_say month_to_say day_to_say)] );
-$VERSION = "0.02";
+$VERSION = "0.03";
 $AUTHOR = 'Jiri Vaclavik <jiri.vaclavik@gmail.com>';
 
 my %cipher = (1 => "jedna", 2 => "dva", 3 => "tøi", 4 => "ètyøi", 5 => "pìt", 6 => "¹est", 7 => "sedm", 8 => "osm", 9 => "devìt", 10 => "deset", 11 => "jedenáct", 12 => "dvanáct", 13 => "tøináct", 14 => "ètrnáct", 15 => "patnáct", 16 => "¹estnáct", 17 => "sedmnáct", 18 => "osmnáct", 19 => "devatenáct");
