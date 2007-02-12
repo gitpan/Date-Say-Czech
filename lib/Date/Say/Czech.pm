@@ -93,8 +93,8 @@ require POSIX;
 @ISA = qw(Exporter Date::Say::Czech);
 @EXPORT_OK = qw(date_to_say time_to_say);
 %EXPORT_TAGS = ( ALL => [qw(year_to_say date_to_say time_to_say month_to_say day_to_say)] );
-$VERSION = "0.03";
-$AUTHOR = 'Jiri Vaclavik <jiri.vaclavik@gmail.com>';
+$VERSION = "0.04";
+$AUTHOR = 'Jiri Vaclavik <jiri.vaclavik@NOSPAMgmailNOSPAM.com>';
 
 my %cipher = (1 => "jedna", 2 => "dva", 3 => "tøi", 4 => "ètyøi", 5 => "pìt", 6 => "¹est", 7 => "sedm", 8 => "osm", 9 => "devìt", 10 => "deset", 11 => "jedenáct", 12 => "dvanáct", 13 => "tøináct", 14 => "ètrnáct", 15 => "patnáct", 16 => "¹estnáct", 17 => "sedmnáct", 18 => "osmnáct", 19 => "devatenáct");
 my %specialcipher = (1 => "prvního", 2 => "druhého", 3 => "tøetího", 4 => "ètvrtého", 5 => "pátého", 6 => "¹estého", 7 => "sedmého", 8 => "osmého", 9 => "devátého", 10 => "desátého", 11 => "jedenáctého", 12 => "dvanáctého", 13 => "tøináctého", 14 => "ètrnáctého", 15 => "patnáctého", 16 => "¹estnáctého", 17 => "sedmnáctého", 18 => "osmnáctého", 19 => "devatenáctého");
