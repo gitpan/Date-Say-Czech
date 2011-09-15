@@ -1,5 +1,5 @@
 Date::Say::Czech, a Perl module which output dates as text as you would speak it
-Copyright (C) 2005 Jiri Vaclavik
+Copyright (C) 2005-2011 Jiri Vaclavik
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Library General Public

@@ -1,111 +1,135 @@
+# For Emacs: -*- mode:cperl; mode:folding; -*-
+#
 # Czech.pm
 #
-# (c) 2005 Jiri Vaclavik <jiri.vaclavik@NOSPAMgmailNOSPAM.com>
+# (c) 2005-2011 Jiri Vaclavik <my name dot my last name at gmail dot com>
 # All rights reserved. This program is free software; you can redistribute
 # and/or modify it under the same terms as perl itself.
-
-=head1 NAME
-
-Date::Say::Czech - Output dates as text as you would speak it
-
-=head1 SYNOPSIS
-
- use Date::Say::Czech;
-
- print time_to_say(time());
- print date_to_say($DAY, $MONTH, $YEAR);
-
-=head1 DESCRIPTION
-
-This module provides you with functions to easily convert a date (given
-as either integer values for day, month and year or as a unix timestamp)
-to its representation as czech text, like you would read it aloud.
-
-=head1 EXPORTABLE TAGS
-
-:ALL    - all helper methods are also exported into the callers namespace
-
-=head1 FUNCTIONS
-
-=head2 Exported by default
-
-=over 2
-
-=item B<time_to_say($TIMESTAMP)>
-
-In scalar context, return a string consisting of the text
-representation of the date in the given unix timestamp,
-like e.g. "dvac·tÈho p·tÈho Ëervna dva tisÌce pÏt".
-
-In list context, returns the three words of the string as a list.
-
-=item B<date_to_say($DAY, $MONTH, $YEAR)>
-
-Takes the values for day of month, month and year as integers
-(month starting with B<1>) and gives the same return values as
-I<time_to_say>.
-
-=back
-
-=head2 Exported by :ALL
-
-=over 2
-
-=item B<year_to_say($YEAR)>
-
-Takes a year (absolute integer value) as input and returns the
-text representation in Czech.
-
-=item B<month_to_speak($MONTH)>
-
-Takes a month (integer value, January = 1) as input and returns
-the text representation in Czech.
-
-=item B<day_to_say($DAY)>
-
-Converts a day number to its Czech text representation.
-
-=back
-
-=head1 BUGS
-
-Please report all bugs to the author of this module:
-Jiri Vaclavik <jiri.vaclavik@NOSPAMgmailNOSPAM.com>
-
-=for html <a href="mailto:jiri.vaclavik@NOSPAMgmailNOSPAM.com?subject=Bug%20in%20Date::Say::Czech">Mail a Bug</a>
-
-=head1 AUTHOR
-
-Jiri Vaclavik <jiri.vaclavik@NOSPAMgmailNOSPAM.com>
-
-=head1 SEE ALSO
-
-Date::Spoken::German from Christian Winter
-
-
-=cut
-
+#
 package Date::Say::Czech;
 
-require Exporter;
-require POSIX;
+# {{{ use
 
-@ISA = qw(Exporter Date::Say::Czech);
-@EXPORT_OK = qw(date_to_say time_to_say);
-%EXPORT_TAGS = ( ALL => [qw(year_to_say date_to_say time_to_say month_to_say day_to_say)] );
-$VERSION = "0.04";
-$AUTHOR = 'Jiri Vaclavik <jiri.vaclavik@NOSPAMgmailNOSPAM.com>';
+use 5.010;
+use strict;
+use warnings;
 
-my %cipher = (1 => "jedna", 2 => "dva", 3 => "t¯i", 4 => "Ëty¯i", 5 => "pÏt", 6 => "πest", 7 => "sedm", 8 => "osm", 9 => "devÏt", 10 => "deset", 11 => "jeden·ct", 12 => "dvan·ct", 13 => "t¯in·ct", 14 => "Ëtrn·ct", 15 => "patn·ct", 16 => "πestn·ct", 17 => "sedmn·ct", 18 => "osmn·ct", 19 => "devaten·ct");
-my %specialcipher = (1 => "prvnÌho", 2 => "druhÈho", 3 => "t¯etÌho", 4 => "ËtvrtÈho", 5 => "p·tÈho", 6 => "πestÈho", 7 => "sedmÈho", 8 => "osmÈho", 9 => "dev·tÈho", 10 => "des·tÈho", 11 => "jeden·ctÈho", 12 => "dvan·ctÈho", 13 => "t¯in·ctÈho", 14 => "Ëtrn·ctÈho", 15 => "patn·ctÈho", 16 => "πestn·ctÈho", 17 => "sedmn·ctÈho", 18 => "osmn·ctÈho", 19 => "devaten·ctÈho");
-my %tens = (1 => "deset", 2 => "dvacet", 3 => "t¯icet", 4 => "Ëty¯icet", 5 => "pades·t", 6 => "πedes·t", 7 => "sedmdes·t", 8 => "osmdes·t", 9 => "devades·t" );
-my %specialtens = (1 => "des·tÈho", 2 => "dvac·tÈho", 3 => "t¯ic·tÈho", 4 => "Ëty¯ic·tÈho", 5 => "pades·tÈho", 6 => "πedes·tÈho", 7 => "sedmdes·tÈho", 8 => "osmdes·tÈho", 9 => "devades·tÈho" );
-my %months = (  1 => "leden", 2 => "˙nor", 3 => "b¯ezen", 4 => "duben", 5 => "kvÏten", 6 => "Ëerven", 7 => "Ëervenec", 8 => "srpen", 9 => "z·¯Ì", 10 => "¯Ìjen", 11 => "listopad", 12 => "prosinec" );
-my %specialmonths = (  1 => "ledna", 2 => "˙nora", 3 => "b¯ezna", 4 => "dubna", 5 => "kvÏtna", 6 => "Ëervna", 7 => "Ëervence", 8 => "srpna", 9 => "z·¯Ì", 10 => "¯Ìjna", 11 => "listopadu", 12 => "prosince" );
+use Perl6::Export::Attrs;
+use POSIX;
 
-sub year_to_say
-{
-    my $year = shift;
+# }}}
+# {{{ variables
+
+our $VERSION     = "0.05";
+our $AUTHOR      = 'Jiri Vaclavik <my name dot my last name at gmail dot com>';
+
+my %cipher = (
+    1  => "jedna",
+    2  => "dva",
+    3  => "t≈ôi",
+    4  => "ƒçty≈ôi",
+    5  => "pƒõt",
+    6  => "≈°est",
+    7  => "sedm",
+    8  => "osm",
+    9  => "devƒõt",
+    10 => "deset",
+    11 => "jeden√°ct",
+    12 => "dvan√°ct",
+    13 => "t≈ôin√°ct",
+    14 => "ƒçtrn√°ct",
+    15 => "patn√°ct",
+    16 => "≈°estn√°ct",
+    17 => "sedmn√°ct",
+    18 => "osmn√°ct",
+    19 => "devaten√°ct"
+);
+
+my %specialcipher = (
+    1  => "prvn√≠ho",
+    2  => "druh√©ho",
+    3  => "t≈ôet√≠ho",
+    4  => "ƒçtvrt√©ho",
+    5  => "p√°t√©ho",
+    6  => "≈°est√©ho",
+    7  => "sedm√©ho",
+    8  => "osm√©ho",
+    9  => "dev√°t√©ho",
+    10 => "des√°t√©ho",
+    11 => "jeden√°ct√©ho",
+    12 => "dvan√°ct√©ho",
+    13 => "t≈ôin√°ct√©ho",
+    14 => "ƒçtrn√°ct√©ho",
+    15 => "patn√°ct√©ho",
+    16 => "≈°estn√°ct√©ho",
+    17 => "sedmn√°ct√©ho",
+    18 => "osmn√°ct√©ho",
+    19 => "devaten√°ct√©ho"
+);
+
+my %tens = (
+    1 => "deset",
+    2 => "dvacet",
+    3 => "t≈ôicet",
+    4 => "ƒçty≈ôicet",
+    5 => "pades√°t",
+    6 => "≈°edes√°t",
+    7 => "sedmdes√°t",
+    8 => "osmdes√°t",
+    9 => "devades√°t"
+);
+
+my %specialtens = (
+    1 => "des√°t√©ho",
+    2 => "dvac√°t√©ho",
+    3 => "t≈ôic√°t√©ho",
+    4 => "ƒçty≈ôic√°t√©ho",
+    5 => "pades√°t√©ho",
+    6 => "≈°edes√°t√©ho",
+    7 => "sedmdes√°t√©ho",
+    8 => "osmdes√°t√©ho",
+    9 => "devades√°t√©ho"
+);
+
+my %months = (
+    1 => "leden",
+    2 => "√∫nor",
+    3 => "b≈ôezen",
+    4 => "duben",
+    5 => "kvƒõten",
+    6 => "ƒçerven",
+    7 => "ƒçervenec",
+    8 => "srpen",
+    9 => "z√°≈ô√≠",
+    10 => "≈ô√≠jen",
+    11 => "listopad",
+    12 => "prosinec"
+);
+
+my %specialmonths = (
+    1 => "ledna",
+    2 => "√∫nora",
+    3 => "b≈ôezna",
+    4 => "dubna",
+    5 => "kvƒõtna",
+    6 => "ƒçervna",
+    7 => "ƒçervence",
+    8 => "srpna",
+    9 => "z√°≈ô√≠",
+    10 => "≈ô√≠jna",
+    11 => "listopadu",
+    12 => "prosince"
+);
+
+# }}}
+
+# {{{ year_to_say            export
+
+sub year_to_say :Export {
+    my $year = shift // return;
+
+    return if ($year > 2999 or $year < 1);
+
     (my $tens = $year) =~ s/^.*(\d\d)$/$1/;
     my $hundreds = "";
     if( $year < 10 ) {
@@ -128,28 +152,28 @@ sub year_to_say
         if( $year >= 100 ) {
             ($hundreds = $year) =~ s/^(.?.)..$/$1/;
             if( $hundreds % 10 == 0) {
-                $thousand = thousand_form($hundreds);
+                my $thousand = thousand_form($hundreds);
                 if($hundreds == 10){
-                    $hundreds =~ s/(.)(.)/"tisÌc "/ex;
+                    $hundreds =~ s/(.)(.)/"tis√≠c "/ex;
                 }else{
                     $hundreds =~ s/(.)(.)/$cipher{$1}." ".$thousand/ex;
                 }
             } else {
                 if( $hundreds > 10 ) {
-                    $thousand = thousand_form($hundreds);
+                    my $thousand = thousand_form($hundreds);
                     if ($hundreds < 20){
-                        $hundred = hundred_form($hundreds);
+                        my $hundred = hundred_form($hundreds);
                         my($x, $y) = split("", $hundreds);
                         if($y == 1){
-                            $hundreds =~ s/(.)(.)/"tisÌc sto "/ex;
+                            $hundreds =~ s/(.)(.)/"tis√≠c sto "/ex;
                         }else{
-                            $hundreds =~ s/(.)(.)/"tisÌc ".$cipher{$2}." $hundred "/ex;
+                            $hundreds =~ s/(.)(.)/"tis√≠c ".$cipher{$2}." $hundred "/ex;
                         }
                     }else{
-                        $hundred = hundred_form($hundreds);
+                        my $hundred = hundred_form($hundreds);
                         my($x, $y) = split("", $hundreds);
                         if($y == 1){
-                           $hundreds = "sto ";
+                            $hundreds = "sto ";
                         }else{
                             $hundreds =~ s/(.)(.)/$cipher{"$1"}." ".$thousand.$cipher{$2}." ".$hundred." "/e;
                         }
@@ -158,7 +182,7 @@ sub year_to_say
                     if($hundreds == 1){
                        $hundreds = "sto ";
                     }else{
-                       $hundred = hundred_form($hundreds);
+                       my $hundred = hundred_form($hundreds);
                        $hundreds = $cipher{$hundreds}." ".$hundred;
                     }
                 }
@@ -168,56 +192,171 @@ sub year_to_say
     return $hundreds.$tens;
 }
 
-sub hundred_form {
-    my($hundreds) = shift;
-    my($x, $num) = split("", $hundreds);
-    if($num > 4){
-        return "set";
-    }else{
-        return "sta";
+# }}}
+# {{{ day_to_say             export
+
+sub day_to_say :Export {
+    my $day = shift // return;
+
+    return if ($day > 31 or $day < 1);
+
+    if( $day >= 10 ) {
+        $day =~ s/(.)(.)/$specialcipher{"$1$2"} || $specialtens{$1}." ".$specialcipher{$2}/ex;
+    } else {
+        $day = $specialcipher{$day} || $cipher{$day};
+    }
+    return $day;
+}
+
+# }}}
+# {{{ month_to_say           export
+
+sub month_to_say :Export {
+    my $month = shift // return;
+
+    return if ($month > 12 or $month < 1);
+
+    return $specialmonths{$month};
+}
+
+# }}}
+# {{{ date_to_say            export
+
+sub date_to_say :Export {
+    my $day   = shift // return;
+    my $month = shift // return;
+    my $year  = shift // return;
+
+    my $res;
+
+    my $d = day_to_say($day);
+    my $m = month_to_say($month);
+    my $y = year_to_say($year);
+
+    if( wantarray ) {
+        return ($d, $m, $y);
+    } else {
+        my $res = "$d $m $y";
+        $res =~ s/\A(.*) +\z/$1/;;
+        return $res;
     }
 }
+
+# }}}
+# {{{ time_to_say            export
+
+sub time_to_say :Export {
+    my($day, $month, $year) = (gmtime( shift || time() ))[3, 4, 5];
+    return date_to_say($day, $month + 1, 1900 + $year);
+}
+
+# }}}
+# {{{ hundred_form           internal
+
+sub hundred_form {
+    my($hundreds) = shift;
+    my($x, $num) = split(//, $hundreds);
+    if($num > 4){
+        return "set";
+    }elsif($num == 4){
+        return "sta";
+    }else{
+        return "set";
+    }
+}
+
+# }}}
+# {{{ thousand_form          internal
 
 sub thousand_form {
     my($num) = shift;
     if($num > 49){
-        return "tisÌc ";
+        return "tis√≠c ";
     }else{
-        return "tisÌce ";
+        return "tis√≠ce ";
     }
 }
 
-sub month_to_say
-{
-    my $month = shift;
-    return $specialmonths{$month};
-}
-
-sub day_to_say
-{
-    my $tag = shift;
-    if( $tag >= 10 ) {
-        $tag =~ s/(.)(.)/$specialcipher{"$1$2"} || $specialtens{$1}." ".$specialcipher{$2}/ex;
-    } else {
-        $tag = $specialcipher{$tag} || $cipher{$tag};
-    }
-    return $tag;
-}
-
-sub date_to_say
-{
-    my($day, $month, $year) = @_;
-    if( wantarray ) {
-        return day_to_say($day), " ", month_to_say($month), " ", year_to_say($year);
-    } else {
-        return day_to_say($day)." ".month_to_say($month)." ".year_to_say($year);
-    }
-}
-
-sub time_to_say
-{
-    my($day, $month, $year) = (gmtime( shift || time() ))[3,4,5];
-    return date_to_say($day, $month+1, 1900+$year);
-}
+# }}}
 
 1;
+
+__END__
+
+# {{{ POD
+
+=head1 NAME
+
+Date::Say::Czech - Outputs dates as text as you would speak it
+
+=head1 SYNOPSIS
+
+ use Date::Say::Czech;
+
+ print time_to_say(time());
+ print date_to_say($DAY, $MONTH, $YEAR);
+
+ print day_to_say($DAY);
+ print month_to_say($MONTH);
+ print year_to_say($YEAR);
+
+=head1 DESCRIPTION
+
+This module provides functions to easily convert a date (given
+as either integer values for a day, a month and a year or as a unix timestamp)
+into the Czech text representation, like you would read it aloud.
+
+=head1 FUNCTIONS
+
+Please, put correct args to all functions, otherwise there is no guarantee
+what the result will be.
+
+=over 2
+
+=item B<time_to_say($TIMESTAMP)>
+
+In the scalar context, returns a string consisting of the text
+representation of the date in given unix timestamp,
+like e.g. "dvac√°t√©ho p√°t√©ho ƒçervna dva tis√≠ce pƒõt".
+
+In list context, returns the three words of the string as the list.
+
+=item B<date_to_say($DAY, $MONTH, $YEAR)>
+
+Takes the values for a day of a month, a month and a year as integers
+(month starting with B<1>) and translates them into the Czech
+text representation.
+
+=item B<day_to_say($DAY)>
+
+Converts a day number to its Czech text representation.
+
+=item B<month_to_say($MONTH)>
+
+Converts a month number (January = 1 etc.) to its Czech
+text representation.
+
+=item B<year_to_say($YEAR)>
+
+Converts a year number to its Czech text representation.
+
+=back
+
+=head1 BUGS
+
+Please report all bugs to the author of this module:
+Jiri Vaclavik <my name dot my last name at gmail dot com>
+
+=for html <a href="mailto:jiri.vaclavik@NOSPAMgmailNOSPAM.com?subject=Bug%20in%20Date::Say::Czech">Mail a Bug</a>
+
+=head1 AUTHOR
+
+Jiri Vaclavik <my name dot my last name at gmail dot com>
+
+=head1 SEE ALSO
+
+Date::Spoken::German from Christian Winter
+
+=cut
+
+# }}}
